@@ -10,6 +10,7 @@ import torch
 import matplotlib.pylab as plt
 from .box_utils import boxes_to_corners_3d
 
+from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import pickle
 

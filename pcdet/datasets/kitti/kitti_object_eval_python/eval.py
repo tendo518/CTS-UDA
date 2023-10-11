@@ -183,7 +183,7 @@ def compute_statistics_jit(
     dt_alphas = dt_datas[:, 4]
     gt_alphas = gt_datas[:, 4]
     dt_bboxes = dt_datas[:, :4]
-    gt_datas[:, :4]
+    gt_bboxes = gt_datas[:, :4]
 
     assigned_detection = [False] * det_size
     ignored_threshold = [False] * det_size

@@ -582,7 +582,7 @@ def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=8
     train_filename = save_path / ("kitti_infos_%s.pkl" % train_split)
     val_filename = save_path / ("kitti_infos_%s.pkl" % val_split)
     trainval_filename = save_path / "kitti_infos_trainval.pkl"
-    save_path / "kitti_infos_test.pkl"
+    test_filename = save_path / "kitti_infos_test.pkl"
 
     print("---------------Start to generate data infos---------------")
 

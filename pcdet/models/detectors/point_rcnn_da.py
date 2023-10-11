@@ -1,24 +1,10 @@
 from .detector3d_template import Detector3DTemplate
 
 from pcdet.models.roi_heads import (
-    PointRCNNHeadCL,
-    PointRCNNHeadCLMT,
-    PointRCNNHeadTransCLMT,
-    PointRCNNHeadTransCLMTRL,
-    PointRCNNHeadTransCLMTRLSL,
     PointRCNNHeadCTS,
-    PointRCNNHeadCLMTCNAU,
 )
 
-# from pcdet.models.roi_heads.pointrcnn_head_cl import PointRCNNHeadCL
-# from pcdet.models.roi_heads.pointrcnn_head_cl_mt import PointRCNNHeadCLMT
-# from pcdet.models.roi_heads.pointrcnn_head_trans_cl_mt import PointRCNNHeadTransCLMT
-# from pcdet.models.roi_heads.pointrcnn_head_trans_cl_mt_rl import (
-#     PointRCNNHeadTransCLMTRL,
-# )
-# from pcdet.models.roi_heads.pointrcnn_head_trans_cl_mt_rl_sl import (
-#     PointRCNNHeadTransCLMTRLSL,
-# )
+
 import torch
 from ..model_utils import model_nms_utils
 
@@ -30,13 +16,7 @@ class PointRCNNDA(Detector3DTemplate):
         self.contrastive_learning = isinstance(
             self.roi_head,
             (
-                PointRCNNHeadCL,
-                PointRCNNHeadCLMT,
-                PointRCNNHeadTransCLMT,
-                PointRCNNHeadTransCLMTRL,
-                PointRCNNHeadTransCLMTRLSL,
                 PointRCNNHeadCTS,
-                PointRCNNHeadCLMTCNAU,
             ),
         )
         self.adversarial_learning = (

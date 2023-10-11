@@ -5,24 +5,25 @@
 
 Follow instruction in [OpenPCDet Install Guide](https://github.com/open-mmlab/OpenPCDet/blob/master/docs/INSTALL.md)
 
+
 ## Get Started
 
 ### Dataset Preparation
 
-All dataset (KITTI, Carla3D, Lyft and TinySUSCape) are organized in KITTI format.
-
 Carla3D (Simulation/Source) is available at **not released yet**.
 
-TinySUSCape is available from [JST](https://github.com/guangyaooo/JointRCNN).
+TinySUSCape (already organized in KITTI format) is available from [JST](https://github.com/guangyaooo/JointRCNN).
 
-Please refer to [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage) to prepare the KITTI and Lyft dataset, [TinySUScape](https://drive.google.com/drive/folders/1eSpyE044SwUk3QRMmdAoYDc1p2Pc_QJA) is already organized in KITTI format.  The train/val split txt of KITTI and Lyft used in our experiments is same as the [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage).
+Please refer to [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage) to prepare the KITTI and Lyft dataset. The train/val split txt of KITTI and Lyft used in our experiments is same as the [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage).
+
+Build dataset info db with:
 
 ```sh
 cd tools/
 python -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos cfgs/dataset_configs/{DATASET}.yaml
 ```
 
-### Training & Testing
+### Training
 
 1. Train a source model on simulation domain (Carla3D):
 
@@ -41,7 +42,14 @@ python train_st.py
 # --mining_at 0 5 15 25 --mining_portion 0.3 0.5 0.7 1.0 \
 --pretrained_model {BEST_MODEL_FROM_SOURCE_TRAIN} \
 ```
+### Testing
 
+```sh
+python test.py \ 
+--cfg_file cfgs/carla_models/pointrcnn_org_to_{DATASET}.yaml \
+--batch_size 8 --workers 8 \
+--ckpt {PATH_TO_CHECKPOINT}
+```
 
 ## Acknowledgement
 

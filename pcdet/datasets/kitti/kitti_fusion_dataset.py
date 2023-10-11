@@ -3,17 +3,23 @@ import pickle
 
 import numpy as np
 from skimage import io
+import skimage.transform as st
+from sklearn.metrics import precision_score, accuracy_score, recall_score
+import cv2
 from ...ops.roiaware_pool3d import roiaware_pool3d_utils
 from ...utils import box_utils, calibration_kitti, common_utils, object3d_kitti
 from ..dataset import DatasetTemplate
-from .kitti_utils import get_fov_flag
+from .kitti_utils import pad_image, get_fov_flag
+from ...utils import debug_utils
 from collections import defaultdict
+from ...utils.calibration_kitti import TorchCalibration
 from ...structures import Instances, Boxes
 import torch
 from torch.nn.functional import grid_sample
 from pcdet.utils.box_utils import in_2d_box
 from tqdm import tqdm
 from pathlib import Path
+import os
 
 
 class KittiFusionDataset(DatasetTemplate):
@@ -204,6 +210,8 @@ class KittiFusionDataset(DatasetTemplate):
     def get_infos(
         self, num_workers=4, has_label=True, count_inside_pts=True, sample_id_list=None
     ):
+        import concurrent.futures as futures
+
         preds = None
         # if self.split == 'train' and len(self.dataset_cfg.get('FAKE_LABEL','')) > 0:
         #     with open(self.dataset_cfg.get('FAKE_LABEL'), 'rb') as f:
@@ -854,6 +862,7 @@ class KittiFusionDataset(DatasetTemplate):
             data_dict = self.data_augmentor.forward(
                 data_dict={**data_dict, "gt_boxes_mask": gt_boxes_mask}
             )
+        skip = False
         if "gt_classes" in data_dict:
             gt_boxes = np.concatenate(
                 (
@@ -862,7 +871,7 @@ class KittiFusionDataset(DatasetTemplate):
                 ),
                 axis=1,
             )
-            np.all(data_dict["gt_classes"] == -1)
+            skip = np.all(data_dict["gt_classes"] == -1)
             data_dict["gt_boxes"] = gt_boxes
         elif data_dict.get("gt_boxes", None) is not None:
             selected = common_utils.keep_arrays_by_name(

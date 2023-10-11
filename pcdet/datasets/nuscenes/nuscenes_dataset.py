@@ -81,7 +81,9 @@ class NuScenesDataset(DatasetTemplate):
                 if name in self.class_names:
                     cls_infos_new[name].append(info)
 
-        {k: len(v) / len(sampled_infos) for k, v in cls_infos_new.items()}
+        cls_dist_new = {
+            k: len(v) / len(sampled_infos) for k, v in cls_infos_new.items()
+        }
 
         return sampled_infos
 
@@ -281,7 +283,7 @@ class NuScenesDataset(DatasetTemplate):
             output_dir=str(output_path),
             verbose=True,
         )
-        nusc_eval.main(plot_examples=0, render_curves=False)
+        metrics_summary = nusc_eval.main(plot_examples=0, render_curves=False)
 
         with open(output_path / "metrics_summary.json", "r") as f:
             metrics = json.load(f)

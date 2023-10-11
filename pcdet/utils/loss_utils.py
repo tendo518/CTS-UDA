@@ -271,7 +271,7 @@ class AULoss(nn.Module):
         au = input[..., codes_size:]
 
         # ignore nan targets
-        target = torch.where(torch.isnan(target), result, target)
+        target = torch.where(torch.isnan(target), result, target)  
         au = torch.where(torch.isnan(target), torch.zeros_like(target), au)
 
         loss = self.nll(result, target, uncertainty=au, distribution=self.distribution)
@@ -315,7 +315,7 @@ def get_corner_loss_lidar(pred_bbox3d: torch.Tensor, gt_bbox3d: torch.Tensor):
 
     gt_bbox3d[:, 6] %= np.pi * 2
     gt_bbox3d_flip[:, 6] %= np.pi * 2
-
+    
     gt_box_corners_flip = box_utils.boxes_to_corners_3d(gt_bbox3d_flip)
     # (N, 8)
     corner_dist = torch.min(
@@ -338,7 +338,7 @@ def get_corner_loss_lidar_uncer(
 
     gt_bbox3d_flip = gt_bbox3d.clone()
     gt_bbox3d_flip[:, 6] += np.pi
-
+    
     gt_bbox3d[:, 6] %= np.pi * 2
     gt_bbox3d_flip[:, 6] %= np.pi * 2
 
@@ -348,7 +348,7 @@ def get_corner_loss_lidar_uncer(
     #     torch.norm(pred_box_corners - gt_box_corners, dim=2), # distance
     #     torch.norm(pred_box_corners - gt_box_corners_flip, dim=2),
     # )
-    # n*8 -> n*8*3
+    # n*8 -> n*8*3 
     # uncertainty towards xyz is consided the same in same corner
     if pred_cn_au.shape[-1] == 24:
         # xyz 方向独立

@@ -1,3 +1,5 @@
+import time
+
 import fire
 
 from pcdet.datasets.kitti.kitti_object_eval_python import kitti_common as kitti

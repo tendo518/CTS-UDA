@@ -271,6 +271,7 @@ class FastRCNNOutputs:
         device = self.pred_proposal_deltas.device
 
         # bg_class_ind = self.pred_class_logits.shape[1] - 1
+        bg_class_ind = 0
 
         # Box delta loss is only computed between the prediction for the gt class k
         # (if 0 <= k < bg_class_ind) and the target; there is no loss defined on predictions

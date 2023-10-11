@@ -5,8 +5,8 @@ import torch
 
 from .detectors import build_detector
 from ..structures import ImageList
-from torch.nn.modules.batchnorm import BatchNorm2d
-from torch.nn.modules.instancenorm import InstanceNorm2d
+from torch.nn.modules.batchnorm import BatchNorm1d, BatchNorm2d, _BatchNorm
+from torch.nn.modules.instancenorm import InstanceNorm1d, InstanceNorm2d
 
 
 def convert_bn2in(module):

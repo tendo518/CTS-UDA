@@ -18,7 +18,7 @@ __all__ = {
     #'PVRCNN': PVRCNN,
     #'PointPillar': PointPillar,
     "PointRCNN": PointRCNN,
-    "FusionRCNN": FusionRCNN,
+    # "FusionRCNN": FusionRCNN,
     "PointRCNNDA": PointRCNNDA,
 }
 

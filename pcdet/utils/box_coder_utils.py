@@ -256,7 +256,6 @@ def box_uncertainty_decode(var, anchors, box_encodings):
 
     return torch.cat([xc, yc, zc, wc, lc, hc, rc], dim=-1)
 
-
 # xa, ya, za, dxa, dya, dza, ra, *cas = torch.split(anchors, 1, dim=-1)
 # if not self.encode_angle_by_sincos:
 #     xt, yt, zt, dxt, dyt, dzt, rt, *cts = torch.split(box_encodings, 1, dim=-1)

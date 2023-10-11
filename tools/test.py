@@ -175,9 +175,9 @@ def get_no_evaluated_ckpt(ckpt_dir, ckpt_record_file, args):
 def repeat_eval_ckpt(
     model, test_loader, args, eval_output_dir, logger, ckpt_dir, dist_test=False
 ):
-    # evaluated ckpt record
-    if hasattr(cfg, "DATA_CONFIG_TAR"):
-        cfg.DATA_CONFIG = cfg.DATA_CONFIG_TAR
+    # # evaluated ckpt record
+    # if hasattr(cfg, "DATA_CONFIG_TAR"):
+    #     cfg.DATA_CONFIG = cfg.DATA_CONFIG_TAR
     ckpt_record_file = eval_output_dir / (
         "eval_list_%s.txt" % cfg.DATA_CONFIG.DATA_SPLIT["test"]
     )
@@ -289,6 +289,8 @@ def main():
 
     eval_output_dir = output_dir / "eval"
 
+    if hasattr(cfg, "DATA_CONFIG_TAR"):
+        cfg.DATA_CONFIG = cfg.DATA_CONFIG_TAR
     if not args.eval_all:
         num_list = re.findall(r"\d+", args.ckpt) if args.ckpt is not None else []
         epoch_id = num_list[-1] if num_list.__len__() > 0 else "no_number"

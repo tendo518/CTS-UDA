@@ -1,6 +1,7 @@
 import numpy as np
 
 from ...utils import common_utils
+from pcdet.utils import debug_utils
 
 
 def random_flip_along_x(gt_boxes, points):

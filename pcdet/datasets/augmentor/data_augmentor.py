@@ -2,7 +2,7 @@ from functools import partial
 import torch
 import numpy as np
 from ...ops.roiaware_pool3d import roiaware_pool3d_utils
-from ...utils import common_utils
+from ...utils import common_utils, box_utils
 from . import augmentor_utils, database_sampler
 
 
@@ -115,7 +115,7 @@ class DataAugmentor(object):
         ).numpy()
 
         obj_points_list = []
-        gt_boxes[:, 3:6]
+        gt_boxes_size = gt_boxes[:, 3:6]
         # scale the objects
         for i in range(num_obj):
             obj_mask = point_masks[i] > 0

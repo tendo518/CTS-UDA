@@ -8,6 +8,7 @@ from __future__ import print_function
 import numpy as np
 import cv2
 import os
+from .object_3d import Object3d
 
 
 class Calibration(object):

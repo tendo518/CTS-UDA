@@ -1,9 +1,10 @@
 from functools import partial
 
 import numpy as np
+from skimage import transform as st
 import cv2
 from . import augmentor_utils
-from ...utils import common_utils
+from ...utils import common_utils, debug_utils, box_utils
 from .data_augmentor import DataAugmentor
 from PIL import ImageEnhance, Image
 

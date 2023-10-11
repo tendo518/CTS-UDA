@@ -281,7 +281,7 @@ class HEMMultiDA(MultiDA):
             forward_dict = self.forward_dict[domain_lable]
             batch_size = forward_dict["batch_size"]
             point_cls_prob = forward_dict["point_cls_prob"].view(batch_size, -1)
-            forward_dict["roi_prob"]
+            roi_prob = forward_dict["roi_prob"]
             for loss_fun, (idx, y) in zip(self.global_losses, forward_dict["global"]):
                 y = y.view(-1)
                 target = torch.empty_like(y).fill_(forward_dict["domain_label"])

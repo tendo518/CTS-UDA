@@ -1,5 +1,6 @@
 import numpy as np
 from ...utils import box_utils
+from skimage import io
 
 
 def pad_image(image, target_shape):
@@ -15,6 +16,7 @@ def pad_image(image, target_shape):
     new_h, new_w = target_shape
     image = np.pad(image, pad_width=[(0, new_h - old_h), (0, new_w - old_w), (0, 0)])
     return image
+
 
 
 # def shift_boxes(boxes, org_shape, target_shape):

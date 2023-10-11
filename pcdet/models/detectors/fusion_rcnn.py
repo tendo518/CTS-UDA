@@ -18,8 +18,12 @@ from ...utils.box_utils import (
     recover_boxes_2d,
     boxes_iou_normal,
     lidar_box_to_image_box,
+    in_2d_box,
 )
 from ...utils.memory import retry_if_cuda_oom
+from pcdet.utils import debug_utils
+
+from torch.nn.functional import grid_sample
 
 
 class FusionRCNN(Detector3DTemplate):
@@ -733,7 +737,7 @@ class FusionRCNN(Detector3DTemplate):
 
             cls_preds_2d = batch_dict["batch_cls_preds2d"][index]
             box_preds_2d = batch_dict["batch_box_preds2d"][index]
-            torch.argmax(cls_preds_2d, 1)
+            cls_fg_2d = torch.argmax(cls_preds_2d, 1)
             image_shape = batch_dict["image_shape"][index]
             new_shape = batch_dict["images"].image_sizes[index]
             roi_keep2d = batch_dict["batch_roi_keep2d"][index]
@@ -805,6 +809,7 @@ class FusionRCNN(Detector3DTemplate):
                 #     label_preds = label_preds[roi_keep2d]
                 # else:
                 #     label_preds = label_preds + 1
+                fusion_strategy = 0
                 # if fusion_strategy == 0:
                 #     cls_fg_2d = cls_preds_2d[
                 #         torch.arange(cls_preds_2d.shape[0]), label_preds]
@@ -922,6 +927,7 @@ class FusionRCNN(Detector3DTemplate):
             if not isinstance(batch_dict["batch_cls_preds"], list):
                 cls_preds = batch_dict["batch_cls_preds"][batch_mask]
                 cls_preds = cls_preds[roi_keep2d]
+                src_cls_preds = cls_preds
                 # assert cls_preds.shape[1] in [1, self.num_class]
                 #
                 # if not batch_dict['cls_preds_normalized']:
@@ -929,6 +935,7 @@ class FusionRCNN(Detector3DTemplate):
             else:
                 assert False
                 cls_preds = [x[batch_mask] for x in batch_dict["batch_cls_preds"]]
+                src_cls_preds = cls_preds
                 if not batch_dict["cls_preds_normalized"]:
                     cls_preds = [torch.sigmoid(x) for x in cls_preds]
 
@@ -1212,6 +1219,7 @@ class FusionRCNN(Detector3DTemplate):
             if not isinstance(batch_dict["batch_cls_preds"], list):
                 cls_preds = batch_dict["batch_cls_preds"][batch_mask]
                 cls_preds = cls_preds[roi_keep2d]
+                src_cls_preds = cls_preds
                 # assert cls_preds.shape[1] in [1, self.num_class]
                 #
                 # if not batch_dict['cls_preds_normalized']:
@@ -1219,6 +1227,7 @@ class FusionRCNN(Detector3DTemplate):
             else:
                 assert False
                 cls_preds = [x[batch_mask] for x in batch_dict["batch_cls_preds"]]
+                src_cls_preds = cls_preds
                 if not batch_dict["cls_preds_normalized"]:
                     cls_preds = [torch.sigmoid(x) for x in cls_preds]
 
@@ -1489,6 +1498,7 @@ class FusionRCNN(Detector3DTemplate):
             if not isinstance(batch_dict["batch_cls_preds"], list):
                 cls_preds = batch_dict["batch_cls_preds"][batch_mask]
                 cls_preds = cls_preds[roi_keep2d]
+                src_cls_preds = cls_preds
                 # assert cls_preds.shape[1] in [1, self.num_class]
                 #
                 # if not batch_dict['cls_preds_normalized']:
@@ -1496,6 +1506,7 @@ class FusionRCNN(Detector3DTemplate):
             else:
                 assert False
                 cls_preds = [x[batch_mask] for x in batch_dict["batch_cls_preds"]]
+                src_cls_preds = cls_preds
                 if not batch_dict["cls_preds_normalized"]:
                     cls_preds = [torch.sigmoid(x) for x in cls_preds]
 
@@ -1775,6 +1786,7 @@ class FusionRCNN(Detector3DTemplate):
             if not isinstance(batch_dict["batch_cls_preds"], list):
                 cls_preds = batch_dict["batch_cls_preds"][batch_mask]
                 cls_preds = cls_preds[roi_keep2d]
+                src_cls_preds = cls_preds
                 # assert cls_preds.shape[1] in [1, self.num_class]
                 #
                 # if not batch_dict['cls_preds_normalized']:
@@ -1782,6 +1794,7 @@ class FusionRCNN(Detector3DTemplate):
             else:
                 assert False
                 cls_preds = [x[batch_mask] for x in batch_dict["batch_cls_preds"]]
+                src_cls_preds = cls_preds
                 if not batch_dict["cls_preds_normalized"]:
                     cls_preds = [torch.sigmoid(x) for x in cls_preds]
 
@@ -2164,6 +2177,7 @@ class FusionRCNN(Detector3DTemplate):
             if not isinstance(batch_dict["batch_cls_preds"], list):
                 cls_preds = batch_dict["batch_cls_preds"][batch_mask]
                 cls_preds = cls_preds[roi_keep2d]
+                src_cls_preds = cls_preds
                 assert cls_preds.shape[1] in [1, self.num_class]
                 #
                 if not batch_dict["cls_preds_normalized"]:
@@ -2171,6 +2185,7 @@ class FusionRCNN(Detector3DTemplate):
             else:
                 assert False
                 cls_preds = [x[batch_mask] for x in batch_dict["batch_cls_preds"]]
+                src_cls_preds = cls_preds
                 if not batch_dict["cls_preds_normalized"]:
                     cls_preds = [torch.sigmoid(x) for x in cls_preds]
 
@@ -2757,6 +2772,7 @@ class FusionRCNN(Detector3DTemplate):
 
             cls_preds_3d = batch_dict["batch_cls_preds"][batch_mask]
             cls_preds_3d = cls_preds_3d[roi_keep_2d]
+            src_cls_preds_3d = cls_preds_3d
             assert cls_preds_3d.shape[1] in [1, self.num_class]
 
             if not batch_dict["cls_preds_normalized"]:
@@ -3037,6 +3053,7 @@ class FusionRCNN(Detector3DTemplate):
 
             cls_preds_3d = batch_dict["batch_cls_preds"][batch_mask].detach()
             # cls_preds_3d = cls_preds_3d[roi_keep_2d]
+            src_cls_preds_3d = cls_preds_3d
             assert cls_preds_3d.shape[1] in [1, self.num_class]
 
             if not batch_dict["cls_preds_normalized"]:
@@ -3117,6 +3134,8 @@ class FusionRCNN(Detector3DTemplate):
             indices_2d = set(select_from_2d.cpu().numpy())
             indices_3d = set(select_from_3d.cpu().numpy())
 
+            cls_thresh_2d = self.model_cfg.POST_PROCESSING.CLS_THRESH_2D
+            cls_thresh_3d = self.model_cfg.POST_PROCESSING.CLS_THRESH_3D
             iou_thresh = self.model_cfg.POST_PROCESSING.IOU_THRESH
 
             inverse_idx_2d = {x.item(): i for i, x in enumerate(select_from_2d)}

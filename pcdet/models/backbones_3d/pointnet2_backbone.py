@@ -294,7 +294,7 @@ class PointWiseGate6(nn.Module):
     def __init__(self, model_cfg, img_channels, pts_channels):
         super(PointWiseGate6, self).__init__()
         self.model_cfg = model_cfg
-        img_channels + pts_channels
+        in_channels = img_channels + pts_channels
         reduction = model_cfg.REDUCTION
         self.align_mlp = nn.Sequential(
             nn.Conv1d(img_channels, pts_channels, kernel_size=1),
@@ -407,7 +407,7 @@ class PointWiseGate3(nn.Module):
     def __init__(self, model_cfg, img_channels, pts_channels):
         super(PointWiseGate3, self).__init__()
         self.model_cfg = model_cfg
-        img_channels + pts_channels
+        in_channels = img_channels + pts_channels
         reduction = model_cfg.REDUCTION
         self.fusion_mlp = nn.Sequential(
             nn.Conv1d(pts_channels, pts_channels, kernel_size=1),

@@ -3,6 +3,7 @@ import os
 import torch
 import torch.nn as nn
 from scipy.stats import norm
+from torch.nn import functional as F
 
 from pcdet.utils import box_utils
 
@@ -422,7 +423,7 @@ class Detector3DTemplate(nn.Module):
 
             recall_dict["gt"] += cur_gt.shape[0]
         else:
-            box_preds.new_zeros(box_preds.shape[0])
+            gt_iou = box_preds.new_zeros(box_preds.shape[0])
         return recall_dict
 
     def load_params_from_file(self, filename, logger, to_cpu=False):
@@ -584,7 +585,7 @@ class Detector3DTemplate(nn.Module):
                     "uncer_mpiw": mpiw,
                     "uncer_soft_mpiw": soft_mpiw,
                     "uncer_type": uncer_type,
-                    "valid_cnt": gt_cnt,
+                    "valid_cnt": gt_cnt
                 }
 
         return {
@@ -592,5 +593,5 @@ class Detector3DTemplate(nn.Module):
             "uncer_mpiw": None,
             "uncer_soft_mpiw": None,
             "uncer_type": uncer_type,
-            "valid_cnt": None,
+            "valid_cnt": None
         }
