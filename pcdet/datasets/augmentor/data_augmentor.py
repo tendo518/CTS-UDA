@@ -1,8 +1,10 @@
 from functools import partial
-import torch
+
 import numpy as np
+import torch
+
 from ...ops.roiaware_pool3d import roiaware_pool3d_utils
-from ...utils import common_utils, box_utils
+from ...utils import box_utils, common_utils
 from . import augmentor_utils, database_sampler
 
 
@@ -164,6 +166,21 @@ class DataAugmentor(object):
         data_dict["gt_boxes"] = gt_boxes
         data_dict["points"] = points
         return data_dict
+
+    # obtained from https://github.com/CVMI-Lab/ST3D/blob/2634561684dfbafce6ed86e50c6f70f51988593c/pcdet/datasets/augmentor/data_augmentor.py#L59C1-L70C25
+    def random_object_scaling(self, data_dict=None, config=None):
+        if data_dict is None:
+            return partial(self.random_object_scaling, config=config)
+        points, gt_boxes = augmentor_utils.scale_pre_object(
+            data_dict['gt_boxes'], data_dict['points'],
+            gt_boxes_mask=data_dict['gt_boxes_mask'],
+            scale_perturb=config['SCALE_UNIFORM_NOISE']
+        )
+
+        data_dict['gt_boxes'] = gt_boxes
+        data_dict['points'] = points
+        return data_dict
+    
 
     def forward(self, data_dict):
         """

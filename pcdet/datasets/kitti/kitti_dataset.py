@@ -105,7 +105,7 @@ class KittiDataset(DatasetTemplate):
 
         if self.domain != "t" and self.training and len(data_dict["gt_boxes"]) == 0:
             # TODO should be some predictable behavior
-            print(f"frame id {data_dict['frame_id']} have no labels")
+            # print(f"frame id {data_dict['frame_id']} have no labels")
             new_index = np.random.randint(self.__len__())
             return self.__getitem__(new_index)
         data_dict.pop("gt_names", None)
@@ -588,7 +588,7 @@ def create_kitti_infos(dataset_cfg, class_names, data_path, save_path, workers=8
 
     dataset.set_split(train_split)
     kitti_infos_train = dataset.get_infos(
-        num_workers=workers, has_label=False, count_inside_pts=True
+        num_workers=workers, has_label=True, count_inside_pts=True
     )
     with open(train_filename, "wb") as f:
         pickle.dump(kitti_infos_train, f)

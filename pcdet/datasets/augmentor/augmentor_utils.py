@@ -1,7 +1,12 @@
+import copy
+
 import numpy as np
 
-from ...utils import common_utils
 from pcdet.utils import debug_utils
+
+from ...ops.iou3d_nms import iou3d_nms_utils
+from ...ops.roiaware_pool3d import roiaware_pool3d_utils
+from ...utils import common_utils
 
 
 def random_flip_along_x(gt_boxes, points):
@@ -208,3 +213,77 @@ def global_fusion_scaling(gt_boxes, points, calib, scale_range):
     # debug_utils.save_image_boxes_and_pts(image, None, points[:, :3], calib,
     #                                      img_name='aug.jpg')
     return gt_boxes, points, calib
+
+
+
+def scale_pre_object(gt_boxes, points, gt_boxes_mask, scale_perturb, num_try=50):
+    """
+    uniform sacle object with given range
+    Args:
+        gt_boxes: (N, 7) under unified coordinates
+        points: (M, 3 + C) points in lidar
+        gt_boxes_mask: (N), boolen mask for
+        scale_perturb:
+        num_try:
+    Returns:
+    """
+    num_boxes = gt_boxes.shape[0]
+    if not isinstance(scale_perturb, (list, tuple, np.ndarray)):
+        scale_perturb = [-scale_perturb, scale_perturb]
+
+    # boxes wise scale ratio
+    scale_noises = np.random.uniform(scale_perturb[0], scale_perturb[1], size=[num_boxes, num_try])
+    for k in range(num_boxes):
+        if gt_boxes_mask[k] == 0:
+            continue
+
+        scl_box = copy.deepcopy(gt_boxes[k])
+        scl_box = scl_box.reshape(1, -1).repeat([num_try], axis=0)
+        scl_box[:, 3:6] = scl_box[:, 3:6] * scale_noises[k].reshape(-1, 1).repeat([3], axis=1)
+
+        # detect conflict
+        # [num_try, N-1]
+        if num_boxes > 1:
+            self_mask = np.ones(num_boxes, dtype=np.bool_)
+            self_mask[k] = False
+            iou_matrix = iou3d_nms_utils.boxes_bev_iou_cpu(scl_box, gt_boxes[self_mask])
+            ious = np.max(iou_matrix, axis=1)
+            no_conflict_mask = (ious == 0)
+            # all trys have conflict with other gts
+            if no_conflict_mask.sum() == 0:
+                continue
+
+            # scale points and assign new box
+            try_idx = no_conflict_mask.nonzero()[0][0]
+        else:
+            try_idx = 0
+
+        point_masks = roiaware_pool3d_utils.points_in_boxes_cpu(
+            points[:, 0:3],np.expand_dims(gt_boxes[k], axis=0)).squeeze(0)
+
+        obj_points = points[point_masks > 0]
+        obj_center, lwh, ry = gt_boxes[k, 0:3], gt_boxes[k, 3:6], gt_boxes[k, 6]
+
+        # relative coordinates
+        obj_points[:, 0:3] -= obj_center
+        obj_points = common_utils.rotate_points_along_z(np.expand_dims(obj_points, axis=0), -ry).squeeze(0)
+        new_lwh = lwh * scale_noises[k][try_idx]
+
+        obj_points[:, 0:3] = obj_points[:, 0:3] * scale_noises[k][try_idx]
+        obj_points = common_utils.rotate_points_along_z(np.expand_dims(obj_points, axis=0), ry).squeeze(0)
+        # calculate new object center to avoid object float over the road
+        obj_center[2] += (new_lwh[2] - lwh[2]) / 2
+        obj_points[:, 0:3] += obj_center
+        points[point_masks > 0] = obj_points
+        gt_boxes[k, 3:6] = new_lwh
+
+        # if enlarge boxes, remove bg points
+        if scale_noises[k][try_idx] > 1:
+            points_dst_mask = roiaware_pool3d_utils.points_in_boxes_cpu(points[:, 0:3],
+                                                                        np.expand_dims(gt_boxes[k],
+                                                                                       axis=0)).squeeze(0)
+
+            keep_mask = ~np.logical_xor(point_masks, points_dst_mask)
+            points = points[keep_mask]
+
+    return points, gt_boxes

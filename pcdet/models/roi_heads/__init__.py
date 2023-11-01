@@ -1,11 +1,9 @@
 # from .partA2_head import PartA2FCHead
-from .pointrcnn_head import PointRCNNHead
 from .fusionrcnn_head import FusionRCNNHead
-
+from .pointrcnn_head import PointRCNNHead
+from .pointrcnn_head_cts import PointRCNNHeadCTS
 # from .pvrcnn_head import PVRCNNHead
 from .roi_head_template import RoIHeadTemplate
-
-from .pointrcnn_head_cts import PointRCNNHeadCTS
 
 __all__ = {
     "RoIHeadTemplate": RoIHeadTemplate,
