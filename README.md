@@ -10,11 +10,11 @@ Follow instruction in [OpenPCDet Install Guide](https://github.com/open-mmlab/Op
 
 ### Dataset Preparation
 
-Carla3D (Simulation/Source) is available at **not released yet**.
+- Carla3D (Simulation/Source) is available at [link](https://drive.google.com/file/d/109G0JGo8AerGg2ynN-gaf7VEPBwqwO2u/view?usp=drive_link).
 
-TinySUSCape (already organized in KITTI format) is available from [JST](https://github.com/guangyaooo/JointRCNN).
+- TinySUSCape (already organized in KITTI format) is available from [JST](https://github.com/guangyaooo/JointRCNN).
 
-Please refer to [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage) to prepare the KITTI and Lyft dataset. The train/val split txt of KITTI and Lyft used in our experiments is same as the [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage).
+- Please refer to [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage) to prepare the KITTI and Lyft dataset. The train/val split txt of KITTI and Lyft used in our experiments is same as the [3D_adapt_auto_driving](https://github.com/cxy1997/3D_adapt_auto_driving#usage).
 
 Build dataset info db with:
 
